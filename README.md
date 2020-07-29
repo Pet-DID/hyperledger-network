@@ -5,7 +5,7 @@ Hyperledger 블록체인 네트워크 상에서 Decentralized Identifiers(DIDs) 
 ## 시작하기
 
 ### 네트워크
-다음 명령을 실행해서 샘플 네트워크를 시작할 수 있습니다.
+다음 명령을 실행해서 네트워크를 시작할 수 있습니다.
 ```sh
 ./start.sh
 ```
@@ -13,7 +13,7 @@ Hyperledger 블록체인 네트워크 상에서 Decentralized Identifiers(DIDs) 
 Pet-DID 서비스를 이용하기 위한 체인코드 설치까지 진행합니다.
 
 ## 체인코드 interface
-invoke/query 메소드는 다음과 같은 형태로 호출한다.
+체인코드에서 invoke/query 할 수 있는 메소드는 다음과 같습니다.
 ```go
 type Chaincode interface {
     // DID Document 생성
