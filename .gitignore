@@ -1,0 +1,7 @@
+.idea
+.vscode
+.gradle
+vendor/
+.DS_Store
+myc.block
+chaincode/petdid/petdid
