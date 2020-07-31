@@ -21,7 +21,7 @@ type DIDService interface {
 	Read(stub shim.ChaincodeStubInterface, did string) pb.Response
 
 	// DID Doucment 에 서비스 정보 등록
-	AddService(stub shim.ChaincodeStubInterface, jwt string) pb.Response
+	AddService(stub shim.ChaincodeStubInterface, did string, jwt string) pb.Response
 }
 
 type PetDIDChaincode struct {
@@ -45,7 +45,7 @@ func run(stub shim.ChaincodeStubInterface, service DIDService) pb.Response {
 	} else if function == "create" {
 		return service.Create(stub, args[0], args[1])
 	} else if function == "addService" {
-		return service.AddService(stub, args[0])
+		return service.AddService(stub, args[0], args[1])
 	} else if function == "read" {
 		return service.Read(stub, args[0])
 	} else {
@@ -81,16 +81,38 @@ func (t *PetDIDChaincode) Create(stub shim.ChaincodeStubInterface, jwtStr string
 		return shim.Error("Document put error:" + err.Error())
 	}
 
-	// json 변환
-	b, err := json.Marshal(*doc)
-	if err != nil {
-		return shim.Error("convert json error:" + err.Error())
-	}
-
-	return shim.Success(b)
+	// did Return
+	return shim.Success([]byte(doc.Id))
 }
 
-func (t *PetDIDChaincode) AddService(stub shim.ChaincodeStubInterface, jwt string) pb.Response {
+func (t *PetDIDChaincode) AddService(stub shim.ChaincodeStubInterface, did string, jwtStr string) pb.Response {
+	doc, err := getDocument(stub, did)
+	if err != nil {
+		return shim.Error("getDocument error:" + err.Error())
+	}
+	token, err := parse(jwtStr, doc.PublicKey[0].PublicKeyBase64)
+	if err != nil {
+		// verification error, token expired
+		return shim.Error("jwt parse error:" + err.Error())
+	}
+
+	// MapCalims to CreateJwt
+	var claims AddServiceJwt
+	mapClaims := token.Claims.(jwt.MapClaims)
+	err = convertToStruct(mapClaims, &claims)
+	if err != nil {
+		return shim.Error("mapClaims convert error:" + err.Error())
+	}
+
+	// service 추가
+	doc.Service = append(doc.Service, claims.Param)
+
+	// db 에 저장
+	err = putDocument(stub, *doc)
+	if err != nil {
+		return shim.Error("Document put error:" + err.Error())
+	}
+
 	return shim.Success(nil)
 }
 

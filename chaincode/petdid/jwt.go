@@ -13,6 +13,7 @@ import (
 	"hash"
 )
 
+// DID Document 생성 요청 구조체
 type CreateJwt struct {
 	jwt.StandardClaims
 	Param CreateParam `json:"param"`
@@ -22,6 +23,12 @@ type CreateParam struct {
 	Id string `json:"id"`
 	Type string `json:"type"`
 	PublicKeyBase64 string `json:"publicKeyBase64"`
+}
+
+// Service 등록 요청 구조체
+type AddServiceJwt struct {
+	jwt.StandardClaims
+	Param Service `json:"param"`
 }
 
 // jwt.MapClaims 를 CreateJwt 등의 struct 로 변환합니다
